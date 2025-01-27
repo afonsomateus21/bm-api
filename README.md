@@ -1,4 +1,8 @@
 # Beauty Manager
+## 👥 Equipe
+- Afonso Mateus de Oliveira Souza - 552193
+- Clara Livia Moura de Oliveira - 554010
+
 ## 📋 Descrição
 Este projeto consiste na API do BeautyManager, uma aplicação de agendamento voltada para o salão de beleza House Pink. 
 Além dos propósitos comerciais ele também visa satisfazer os requisitos da disciplina Projeto Integrado I, do curso Sistemas e Mídias Digitais da Universidade Federal do Ceará.
