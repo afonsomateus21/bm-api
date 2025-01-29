@@ -94,7 +94,8 @@ async def create_admin(create_user_request: CreateUserRequest, current_user: use
     raise HTTPException(status_code=403, detail="You are not authorized to create this admin.")
   
   create_user_model = User(
-    name=create_user_request.name,
+    first_name=create_user_request.first_name,
+    last_name=create_user_request.last_name,
     password=bcrypt_context.hash(create_user_request.password),
     type=UserType.ADMIN,
     phone=create_user_request.phone,
