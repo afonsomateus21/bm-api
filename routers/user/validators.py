@@ -28,7 +28,7 @@ class Token(BaseModel):
 
 
 class GoogleUser(BaseModel):
-  sub: int
+  sub: str
   email: EmailStr
   name: str
 
