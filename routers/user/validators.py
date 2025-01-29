@@ -7,7 +7,8 @@ class UserType(str, Enum):
   CUSTOMER = "CUSTOMER"
 
 class CreateUserRequest(BaseModel):
-  name: str
+  first_name: str
+  last_name: str
   email: EmailStr
   phone: str
   password: str
@@ -15,7 +16,8 @@ class CreateUserRequest(BaseModel):
 
 class UpdateUserRequest(BaseModel):
   id: Optional[str] = None
-  name: Optional[str] = None
+  first_name: Optional[str] = None
+  last_name: Optional[str] = None
   email: Optional[EmailStr] = None
   phone: Optional[str] = None
   password: Optional[str] = None
@@ -30,7 +32,8 @@ class Token(BaseModel):
 class GoogleUser(BaseModel):
   sub: str
   email: EmailStr
-  name: str
+  first_name: str
+  last_name: str
 
 class RefreshTokenRequest(BaseModel):
   refresh_token: str
