@@ -49,7 +49,8 @@ async def auth_google(request: Request):
   google_user = GoogleUser(
     sub=user_info.get("sub"),
     email=user_info.get("email"),
-    name=user_info.get("given_name")
+    first_name=user_info.get("given_name"),
+    last_name=user_info.get("family_name")
   )
 
   existing_user = get_user_by_google_sub(google_user.sub)
@@ -70,7 +71,8 @@ async def auth_google(request: Request):
 @auth_router.post("/user/customer", status_code=status.HTTP_201_CREATED)
 async def create_customer(create_user_request: CreateUserRequest):
   create_user_model = User(
-    name=create_user_request.name,
+    first_name=create_user_request.first_name,
+    last_name=create_user_request.last_name,
     password=bcrypt_context.hash(create_user_request.password),
     type=UserType.CUSTOMER,
     phone=create_user_request.phone,
