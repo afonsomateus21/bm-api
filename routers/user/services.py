@@ -112,7 +112,8 @@ def create_user_from_google_info(google_user: GoogleUser):
     return existing_user
   else:
     new_user = User(
-      name=google_user.name,
+      first_name=google_user.first_name,
+      last_name=google_user.last_name,
       email=google_user.email,
       google_sub=google_sub,
       type=UserType.CUSTOMER
@@ -123,7 +124,8 @@ def create_user_from_google_info(google_user: GoogleUser):
 def individual_serial(user) -> dict:
   return {
     "id": str(user["_id"]),
-    "name": str(user["name"]),
+    "first_name": str(user["first_name"]),
+    "last_name": str(user["last_name"]),
     "email": str(user["email"]),
     "phone": str(user["phone"]),
     "type": str(user["type"]),
