@@ -9,7 +9,8 @@ class UserType(str, Enum):
 
 class User(BaseModel):
   id: Optional[str] = Field(None, alias="_id")
-  name: str
+  first_name: str
+  last_name: str
   email: str
   phone: Optional[str] = None
   password: Optional[str] = None
