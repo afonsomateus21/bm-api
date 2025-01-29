@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from authlib.integrations.starlette_client import OAuth
 from jose import jwt, JWTError
 from datetime import timedelta, datetime, UTC
-from .validators import GoogleUser
+from .validators import GoogleUser, UserType
 from .models import User
 from config.database import users_collection
 
@@ -101,22 +101,23 @@ def check_if_user_already_exits(email: str):
   return user is not None
 
 def create_user_from_google_info(google_user: GoogleUser):
+  print("google_user: ",google_user)
   google_sub = google_user.sub
   email = google_user.email
 
   existing_user: User = users_collection.find_one({ "email": email })
 
   if existing_user:
-    existing_user["google_id"] = google_sub
+    existing_user["google_sub"] = google_sub
     return existing_user
   else:
     new_user = User(
-      name=name,
-      email=email,
+      name=google_user.name,
+      email=google_user.email,
       google_sub=google_sub,
-      type="CUSTOMER"
+      type=UserType.CUSTOMER
     )
-    users_collection.insert_one(dict(new_user))
+    users_collection.insert_one(new_user.to_dict())
     return new_user
 
 def individual_serial(user) -> dict:
