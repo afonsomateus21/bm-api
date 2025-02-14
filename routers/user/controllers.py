@@ -5,17 +5,20 @@ from starlette.requests import Request
 from starlette import status
 from .models import User
 from .services import bcrypt_context, individual_serial, create_user_from_google_info, authenticate_user, get_user_by_google_sub, create_access_token, list_serial, user_dependency, create_refresh_token, token_expired, decode_token, check_if_user_already_exits
-from .validators import CreateUserRequest, UpdateUserRequest, Token, RefreshTokenRequest, LoginRequest, UserType, GoogleUser
+from .validators import CreateUserRequest, UpdateUserRequest, Token, RefreshTokenRequest, LoginRequest, UserType, GoogleUser, FileUploadRequest
 from config.database import users_collection
 from datetime import timedelta
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
+from supabase import create_client, Client
 
 config = Config(".env")
 
 GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = config("GOOGLE_REDIRECT_URI")
+SUPABASE_SERVICE_ROLE_KEY = config("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_PROJECT_URL = config("SUPABASE_PROJECT_URL")
 
 auth_router = APIRouter(prefix="/auth", tags=["User"])
 
@@ -30,6 +33,8 @@ oauth.register(
   server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
   client_kwargs={"scope": "openid email profile"},
 )
+
+supabase: Client = create_client(SUPABASE_PROJECT_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 @auth_router.get("/google/login")
 async def login_google(request: Request):
@@ -142,6 +147,21 @@ async def list_admin(current_user: user_dependency):
 async def read_me(current_user: user_dependency):
   print(current_user)
   return individual_serial(current_user)
+
+@auth_router.post("/user/upload-photo")
+async def upload_photo(request: FileUploadRequest):
+  try:
+    file_path = f"users/{request.file_name}"
+
+    response = supabase.storage.from_("users").create_signed_upload_url(file_path)
+
+    if "error" in response:
+        raise HTTPException(status_code=500, detail=response["error"]["message"])
+
+    return {"url": response["signedUrl"], "file_path": file_path}
+
+  except Exception as e:
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not upload the image.")
 
 @auth_router.put("/user/{id}", status_code=status.HTTP_200_OK)
 async def edit_user(id: str, update_user_request: UpdateUserRequest, current_user: user_dependency):
