@@ -16,6 +16,7 @@ class User(BaseModel):
   password: Optional[str] = None
   type: UserType
   google_sub: Optional[str] = None
+  photo: Optional[str] = None
 
   class Config:
     populate_by_name = True
