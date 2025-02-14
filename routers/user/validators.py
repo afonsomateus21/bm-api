@@ -43,3 +43,7 @@ class RefreshTokenRequest(BaseModel):
 class LoginRequest(BaseModel):
   email: str
   password: str
+
+class FileUploadRequest(BaseModel):
+  file_name: str
+  mime_type: str
