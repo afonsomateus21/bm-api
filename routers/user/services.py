@@ -127,8 +127,9 @@ def individual_serial(user) -> dict:
     "first_name": str(user["first_name"]),
     "last_name": str(user["last_name"]),
     "email": str(user["email"]),
-    "phone": str(user["phone"]),
+    "phone": str(user["phone"]) if user["phone"] is not None else None,
     "type": str(user["type"]),
+    "photo": str(user["photo"]) if user["photo"] is not None else None,
     "google_sub": str(user["google_sub"]) if user["google_sub"] is not None else None
   }
 
