@@ -12,6 +12,7 @@ class CreateUserRequest(BaseModel):
   email: EmailStr
   phone: str
   password: str
+  photo: Optional[str] = None
   type: UserType = UserType.CUSTOMER
 
 class UpdateUserRequest(BaseModel):
@@ -21,6 +22,7 @@ class UpdateUserRequest(BaseModel):
   email: Optional[EmailStr] = None
   phone: Optional[str] = None
   password: Optional[str] = None
+  photo: Optional[str] = None
   type: Optional[UserType] = None
 
 class Token(BaseModel):
