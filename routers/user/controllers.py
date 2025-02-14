@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.requests import Request
@@ -76,6 +76,7 @@ async def create_customer(create_user_request: CreateUserRequest):
     password=bcrypt_context.hash(create_user_request.password),
     type=UserType.CUSTOMER,
     phone=create_user_request.phone,
+    photo=create_user_request.photo,
     email=create_user_request.email
   )
 
@@ -99,6 +100,7 @@ async def create_admin(create_user_request: CreateUserRequest, current_user: use
     password=bcrypt_context.hash(create_user_request.password),
     type=UserType.ADMIN,
     phone=create_user_request.phone,
+    photo=create_user_request.photo,
     email=create_user_request.email
   )
 
@@ -135,7 +137,12 @@ async def list_admin(current_user: user_dependency):
   users = list_serial(users_collection.find({ "type": UserType.ADMIN }))
   
   return users
-  
+
+@auth_router.get("/user/me", status_code=status.HTTP_200_OK)
+async def read_me(current_user: user_dependency):
+  print(current_user)
+  return individual_serial(current_user)
+
 @auth_router.put("/user/{id}", status_code=status.HTTP_200_OK)
 async def edit_user(id: str, update_user_request: UpdateUserRequest, current_user: user_dependency):
   if str(current_user["_id"]) != id:
@@ -169,7 +176,6 @@ async def remove_user(id: str, current_user: user_dependency):
     raise HTTPException(status_code=404, detail="User not found.")
   
   return { "success": True, "message": "User successfully removed." }
-
 
 @auth_router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
 async def login_for_access_token(request: LoginRequest):
