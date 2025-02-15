@@ -26,8 +26,8 @@ class UpdateOfferedServiceRequest(BaseModel):
   id: Optional[str] = None
   title: Optional[str] = None
   description: Optional[str] = None
-  category: Optional[str] = None
-  professional_id: Optional[ServiceCategory] = None
+  category: Optional[ServiceCategory] = None
+  professional_id: Optional[str] = None
   duration: Optional[int] = None
   price: Optional[float] = None
 
