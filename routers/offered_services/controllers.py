@@ -25,7 +25,12 @@ async def create_service(create_service_request: CreateOfferedServiceRequest, cu
     price=create_service_request.price,
   )
 
-  offered_services_collection.insert_one(dict(create_service_model))
+  create_service_model.professional_id = ObjectId(create_service_model.professional_id)
+
+  offered_services_collection.insert_one({
+    **dict(create_service_model),
+    "professional_id": ObjectId(create_service_model.professional_id)
+  })
 
   return create_service_request
 
@@ -58,6 +63,10 @@ async def edit_service(id:str, update_service_request: UpdateOfferedServiceReque
     raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
   
   update_data = update_service_request.model_dump(exclude_unset=True)
+  
+  if "professional_id" in update_data:
+    update_data["professional_id"] = ObjectId(update_data["professional_id"])
+
   result = offered_services_collection.update_one(
     {"_id": ObjectId(id)}, 
     {"$set": dict(update_data)}
@@ -72,6 +81,8 @@ async def edit_service(id:str, update_service_request: UpdateOfferedServiceReque
     raise HTTPException(status_code=404, detail="Service not found.")
 
   updated_service["_id"] = str(updated_service["_id"])
+  if "professional_id" in updated_service and isinstance(updated_service["professional_id"], ObjectId):
+    updated_service["professional_id"] = str(updated_service["professional_id"])
 
   return jsonable_encoder(updated_service)
 
