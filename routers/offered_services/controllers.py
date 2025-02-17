@@ -1,15 +1,23 @@
 from fastapi import APIRouter, HTTPException
 from routers.user.services import user_dependency
 from starlette import status
-from .validators import CreateOfferedServiceRequest, UpdateOfferedServiceRequest
+from .validators import CreateOfferedServiceRequest, UpdateOfferedServiceRequest, FileUploadRequest
 from .models import OfferedService
 from config.database import offered_services_collection
 from routers.user.validators import UserType
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 from .services import list_serial
+from supabase import create_client, Client
+from starlette.config import Config
+
+config = Config(".env")
+
+SUPABASE_SERVICE_ROLE_KEY = config("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_PROJECT_URL = config("SUPABASE_PROJECT_URL")
 
 offered_services_router = APIRouter(prefix="/service", tags=["Service"])
+supabase: Client = create_client(SUPABASE_PROJECT_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 @offered_services_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_service(create_service_request: CreateOfferedServiceRequest, current_user: user_dependency):
@@ -23,6 +31,7 @@ async def create_service(create_service_request: CreateOfferedServiceRequest, cu
     professional_id=create_service_request.professional_id,
     duration=create_service_request.duration,
     price=create_service_request.price,
+    photo=create_service_request.photo
   )
 
   create_service_model.professional_id = ObjectId(create_service_model.professional_id)
@@ -33,6 +42,21 @@ async def create_service(create_service_request: CreateOfferedServiceRequest, cu
   })
 
   return create_service_request
+
+@offered_services_router.post("/upload-photo", status_code=status.HTTP_200_OK)
+async def upload_photo(request: FileUploadRequest):
+  try:
+    file_path = f"services/{request.file_name}"
+
+    response = supabase.storage.from_("services").create_signed_upload_url(file_path)
+
+    if "error" in response:
+        raise HTTPException(status_code=500, detail=response["error"]["message"])
+
+    return {"url": response["signedUrl"], "file_path": file_path}
+
+  except Exception as e:
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not upload the image.")
 
 @offered_services_router.get("/{id}", status_code=status.HTTP_200_OK)
 async def get_service(id: str, current_user: user_dependency):
@@ -45,6 +69,7 @@ async def get_service(id: str, current_user: user_dependency):
     raise HTTPException(status_code=404, detail="Service not found.")
   
   service["_id"] = str(service["_id"])
+  service["professional_id"] = str(service["professional_id"])
 
   return jsonable_encoder(service)
 
