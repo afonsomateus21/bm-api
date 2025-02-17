@@ -117,7 +117,7 @@ Outros módulos foram utilizados auxiliarmente, entretando acima listamos as pri
 ```bash
 $ git clone https://github.com/afonsomateus21/bm-api.git ou
 $ git clone git@github.com:afonsomateus21/bm-api.git se utilizar SSH
-cd sua-aplicacao
+cd bm-api
 ```
 
 ### 2. **Crie um ambiente virtual**
