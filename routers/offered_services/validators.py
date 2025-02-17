@@ -9,6 +9,7 @@ class CreateOfferedServiceRequest(BaseModel):
   professional_id: str
   duration: int
   price: float
+  photo: Optional[str] = None
 
   @field_validator("duration")
   def validate_duration(cls, value):
@@ -30,6 +31,7 @@ class UpdateOfferedServiceRequest(BaseModel):
   professional_id: Optional[str] = None
   duration: Optional[int] = None
   price: Optional[float] = None
+  photo: Optional[str] = None
 
   @field_validator("duration")
   def validate_duration(cls, value):
@@ -42,3 +44,7 @@ class UpdateOfferedServiceRequest(BaseModel):
     if value < 0:
       raise ValueError("Price must not be negative.")
     return value
+  
+class FileUploadRequest(BaseModel):
+  file_name: str
+  mime_type: str
