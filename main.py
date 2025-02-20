@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers.user.controllers import auth_router
 from routers.offered_services.controllers import offered_services_router
+from routers.appointments.controllers import appointments_router
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -22,4 +23,5 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(offered_services_router, prefix="/api")
+app.include_router(appointments_router, prefix="/api")
 
