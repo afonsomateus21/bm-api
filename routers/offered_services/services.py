@@ -6,7 +6,9 @@ def individual_serial(service) -> dict:
     "professional_id": str(service["professional_id"]),
     "duration": int(service["duration"]),
     "price": float(service["price"]),
-    "photo": float(service["photo"])
+    "title": str(service["title"]),
+    "photo": str(service["photo"]),
+    "active": bool(service["active"]),
   }
 
 def list_serial(offered_services) -> list:

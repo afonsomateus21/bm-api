@@ -106,7 +106,9 @@ async def create_admin(create_user_request: CreateUserRequest, current_user: use
     type=UserType.ADMIN,
     phone=create_user_request.phone,
     photo=create_user_request.photo,
-    email=create_user_request.email
+    email=create_user_request.email,
+    category=create_user_request.category,
+    active=true
   )
 
   if (check_if_user_already_exits(create_user_model.email)):
@@ -165,7 +167,7 @@ async def upload_photo(request: FileUploadRequest):
 
 @auth_router.put("/user/{id}", status_code=status.HTTP_200_OK)
 async def edit_user(id: str, update_user_request: UpdateUserRequest, current_user: user_dependency):
-  if str(current_user["_id"]) != id:
+  if (str(current_user["type"]) != "ADMIN") and (str(current_user["_id"]) != str(id)):
     raise HTTPException(status_code=403, detail="You are not authorized to update this user.")
 
   update_data = update_user_request.model_dump(exclude_unset=True)

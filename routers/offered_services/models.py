@@ -15,3 +15,4 @@ class OfferedService(BaseModel):
   duration: int
   price: float
   photo: Optional[str] = None
+  active: bool
