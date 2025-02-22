@@ -189,7 +189,7 @@ async def edit_user(id: str, update_user_request: UpdateUserRequest, current_use
 
 @auth_router.delete("/user/{id}", status_code=status.HTTP_200_OK)
 async def remove_user(id: str, current_user: user_dependency):
-  if str(current_user["_id"]) != id:
+  if (str(current_user["type"]) != "ADMIN") and (str(current_user["_id"]) != str(id)):
     raise HTTPException(status_code=403, detail="You are not authorized to remove this user.")
   
   result = users_collection.delete_one({ "_id": ObjectId(current_user["_id"]) })
