@@ -7,6 +7,13 @@ class UserType(str, Enum):
   ADMIN = "ADMIN"
   CUSTOMER = "CUSTOMER"
 
+class CategoryType(str, Enum):  
+  HAIR = "HAIR",
+  FOOT_HAND = "FOOT_HAND",
+  LASHES = "LASHES",
+  NAILS = "NAILS",
+  EYEBROW = "EYEBROW",
+
 class User(BaseModel):
   id: Optional[str] = Field(None, alias="_id")
   first_name: str
@@ -17,6 +24,8 @@ class User(BaseModel):
   type: UserType
   google_sub: Optional[str] = None
   photo: Optional[str] = None
+  category: Optional[CategoryType] = None
+  active: bool = None
 
   class Config:
     populate_by_name = True

@@ -6,6 +6,13 @@ class UserType(str, Enum):
   ADMIN = "ADMIN"
   CUSTOMER = "CUSTOMER"
 
+class CategoryType(str, Enum):  
+  HAIR = "HAIR",
+  FOOT_HAND = "FOOT_HAND",
+  LASHES = "LASHES",
+  NAILS = "NAILS",
+  EYEBROW = "EYEBROW",
+
 class CreateUserRequest(BaseModel):
   first_name: str
   last_name: str
@@ -14,6 +21,8 @@ class CreateUserRequest(BaseModel):
   password: str
   photo: Optional[str] = None
   type: UserType = UserType.CUSTOMER
+  category: Optional[CategoryType] = None
+  active: bool
 
 class UpdateUserRequest(BaseModel):
   id: Optional[str] = None
@@ -24,6 +33,8 @@ class UpdateUserRequest(BaseModel):
   password: Optional[str] = None
   photo: Optional[str] = None
   type: Optional[UserType] = None
+  category: Optional[CategoryType] = None
+  active: bool = None
 
 class Token(BaseModel):
   access_token: str
