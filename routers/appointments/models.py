@@ -4,8 +4,8 @@ from typing import List, Optional
 
 class AppointmentProfessional(BaseModel):
   id: str
-  name: str
-  scheduled_time: List[datetime.time]
+  first_name: str
+  last_name: str
 
 class AppointmentService(BaseModel):
   id: str
