@@ -33,3 +33,5 @@ starlette==0.41.3
 typing_extensions==4.12.2
 urllib3==2.3.0
 uvicorn==0.34.0
+supabase==2.13.0
+bcrypt=4.2.1
