@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, HTTPException, Depends
 from starlette import status
-from .validators import CreateAppointmentRequest
+from .validators import CreateAppointmentRequest, UpdateAppointmentRequest
 from routers.user.services import user_dependency
 from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial
 from .models import Appointment, AppointmentProfessional, AppointmentCustomer, AppointmentService
@@ -69,3 +69,67 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
   appointment_created = appointments_collection.find_one({ "_id": result.inserted_id })
 
   return individual_serial(appointment_created)
+
+@appointments_router.put("/{appointment_id}", status_code=status.HTTP_200_OK)
+async def update_appointment(appointment_id: str, update_appointment_request: UpdateAppointmentRequest, current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  try:
+    appointment = appointments_collection.find_one({"_id": ObjectId(appointment_id)})
+    if appointment is None:
+      raise HTTPException(status_code=404, detail="Appointment not found.")
+  except:
+    raise HTTPException(status_code=400, detail="Invalid appointment ID.")
+
+  update_data = {}
+  
+  if update_appointment_request.date is not None or update_appointment_request.hour is not None:
+    new_date = update_appointment_request.date or appointment["date"]
+    new_hour = update_appointment_request.hour or appointment["hour"]
+    
+    existing_appointment = appointments_collection.find_one({
+      "_id": {"$ne": ObjectId(appointment_id)},
+      "date": new_date,
+      "hour": new_hour,
+      "$or": [
+        {"professional._id": appointment["professional"]["_id"]},
+        {"customer._id": appointment["customer"]["_id"]}
+      ]
+    })
+      
+    if existing_appointment:
+      raise HTTPException(status_code=409, detail="This date and hour are unavailable.")
+      
+    if update_appointment_request.date is not None:
+      update_data["date"] = update_appointment_request.date
+    if update_appointment_request.hour is not None:
+      update_data["hour"] = update_appointment_request.hour
+
+  if update_appointment_request.service_id is not None:
+    service = get_service_for_appointment(update_appointment_request.service_id)
+    if service is None:
+      raise HTTPException(status_code=404, detail="Service not found.")
+      
+    update_data["service"] = {
+      "_id": ObjectId(service["_id"]),
+      "title": service["title"],
+      "photo": service["photo"]
+    }
+
+  if update_appointment_request.is_notifiable is not None:
+    update_data["is_notifiable"] = update_appointment_request.is_notifiable
+
+  if not update_data:
+    raise HTTPException(status_code=400, detail="No data provided for update.")
+
+  result = appointments_collection.update_one(
+    {"_id": ObjectId(appointment_id)},
+    {"$set": update_data}
+  )
+
+  if result.modified_count == 0:
+    raise HTTPException(status_code=400, detail="Failed to update appointment.")
+
+  updated_appointment = appointments_collection.find_one({"_id": ObjectId(appointment_id)})
+  return individual_serial(updated_appointment)
