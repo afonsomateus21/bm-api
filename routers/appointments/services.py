@@ -4,8 +4,8 @@ from bson import ObjectId
 
 def check_if_date_and_hour_are_available(date: datetime.date, hour: datetime.time, professional_id: str, customer_id: str):
     appointment = appointments_collection.find_one({
-      "date": date.isoformat(),  # Se armazenado como string no formato YYYY-MM-DD
-      "hour": hour.strftime("%H:%M:%S"),  # Se armazenado como string HH:MM:SS
+      "date": date.isoformat(),  
+      "hour": hour.strftime("%H:%M:%S"),
       "professional.id": ObjectId(professional_id),
       "customer.id": ObjectId(customer_id)
     })
