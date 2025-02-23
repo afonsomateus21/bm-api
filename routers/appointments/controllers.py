@@ -7,7 +7,7 @@ from .models import Appointment, AppointmentProfessional, AppointmentCustomer, A
 from config.database import appointments_collection
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
-from typing import Annotated
+from routers.user.validators import UserType
 
 appointments_router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
@@ -136,20 +136,6 @@ async def update_appointment(appointment_id: str, update_appointment_request: Up
   updated_appointment = appointments_collection.find_one({"_id": ObjectId(appointment_id)})
   return individual_serial(updated_appointment)
 
-@appointments_router.get("/{appointment_id}", status_code=status.HTTP_200_OK)
-async def get_appointment(appointment_id: str, current_user: user_dependency):
-  if current_user is None:
-    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
-  
-  appointment = appointments_collection.find_one({ "_id": ObjectId(appointment_id) })
-
-  if appointment is None:
-    raise HTTPException(status_code=404, detail="Appointment not found.")
-  
-  serialized_appointment = serialize_appointment(appointment)
-  
-  return jsonable_encoder(serialized_appointment)
-
 @appointments_router.get("/", status_code=status.HTTP_200_OK)
 async def list_appointments(current_user: user_dependency):
   if current_user is None:
@@ -180,6 +166,43 @@ async def list_appointments_from_customer(
     raise HTTPException(status_code=404, detail="No appointments found for this customer.")
 
   return appointments
+
+@appointments_router.get("/professional", status_code=status.HTTP_200_OK)
+async def list_appointments_from_professional(
+  current_user: user_dependency,
+  professional_id: str = Query(..., title="Professional ID", description="ID of the professional")
+):
+  print(f"Received professional_id: {professional_id}")
+  if str(current_user["type"]) != UserType.ADMIN:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  try:
+    professional_object_id = ObjectId(professional_id)
+  except Exception:
+    raise HTTPException(status_code=400, detail="Invalid professional ID format.")
+  
+  appointments = list_serial(
+    appointments_collection.find({"professional._id": professional_object_id})
+  )
+
+  if not appointments:
+    raise HTTPException(status_code=404, detail="No appointments found for this professional.")
+
+  return appointments
+
+@appointments_router.get("/{appointment_id}", status_code=status.HTTP_200_OK)
+async def get_appointment(appointment_id: str, current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  appointment = appointments_collection.find_one({ "_id": ObjectId(appointment_id) })
+
+  if appointment is None:
+    raise HTTPException(status_code=404, detail="Appointment not found.")
+  
+  serialized_appointment = serialize_appointment(appointment)
+  
+  return jsonable_encoder(serialized_appointment)
 
 @appointments_router.delete("/{appointment_id}", status_code=status.HTTP_200_OK)
 async def remove_appointment(appointment_id: str, current_user: user_dependency):
