@@ -6,13 +6,13 @@ class CreateAppointmentRequest(BaseModel):
   professional_id: str
   customer_id: str
   service_id: str
-  date: datetime.date
-  hour: datetime.time
+  date: str
+  hour: int
   is_notifiable: bool
 
 class UpdateAppointmentRequest(BaseModel):
   id: Optional[str] = None
   service_id: Optional[str] = None
-  date: Optional[datetime.date] = None 
-  hour: Optional[datetime.time] = None
+  date: Optional[str] = None 
+  hour: Optional[int] = None
   is_notifiable: Optional[bool] = None
