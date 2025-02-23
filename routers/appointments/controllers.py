@@ -133,3 +133,15 @@ async def update_appointment(appointment_id: str, update_appointment_request: Up
 
   updated_appointment = appointments_collection.find_one({"_id": ObjectId(appointment_id)})
   return individual_serial(updated_appointment)
+
+@appointments_router.delete("/{appointment_id}", status_code=status.HTTP_200_OK)
+async def remove_appointment(appointment_id: str, current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  result = appointments_collection.delete_one({ "_id": ObjectId(appointment_id) })
+
+  if result.deleted_count == 0:
+    raise HTTPException(status_code=404, detail="Appointment not found.")
+  
+  return { "success": True, "message": "Appointment successfully removed." }
