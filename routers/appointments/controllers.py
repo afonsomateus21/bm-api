@@ -2,10 +2,11 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from starlette import status
 from .validators import CreateAppointmentRequest, UpdateAppointmentRequest
 from routers.user.services import user_dependency
-from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial
+from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial, serialize_appointment
 from .models import Appointment, AppointmentProfessional, AppointmentCustomer, AppointmentService
 from config.database import appointments_collection
 from bson import ObjectId
+from fastapi.encoders import jsonable_encoder
 
 appointments_router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
@@ -133,6 +134,20 @@ async def update_appointment(appointment_id: str, update_appointment_request: Up
 
   updated_appointment = appointments_collection.find_one({"_id": ObjectId(appointment_id)})
   return individual_serial(updated_appointment)
+
+@appointments_router.get("/{appointment_id}", status_code=status.HTTP_200_OK)
+async def remove_appointment(appointment_id: str, current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  appointment = appointments_collection.find_one({ "_id": ObjectId(appointment_id) })
+
+  if appointment is None:
+    raise HTTPException(status_code=404, detail="Appointment not found.")
+  
+  serialized_appointment = serialize_appointment(appointment)
+  
+  return jsonable_encoder(serialized_appointment)
 
 @appointments_router.delete("/{appointment_id}", status_code=status.HTTP_200_OK)
 async def remove_appointment(appointment_id: str, current_user: user_dependency):
