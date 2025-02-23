@@ -14,7 +14,12 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
   if current_user is None:
     raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
   
-  if check_if_date_and_hour_are_available(create_appointment_request.date, create_appointment_request.hour, create_appointment_request.professional_id, create_appointment_request.customer_id) is False:
+  if check_if_date_and_hour_are_available(
+    create_appointment_request.date, 
+    create_appointment_request.hour, 
+    create_appointment_request.professional_id, 
+    create_appointment_request.customer_id
+  ) is False:
     raise HTTPException(status_code=409, detail="This date and hour are unavailable.")
   
   professional = get_user_for_appointment(create_appointment_request.professional_id)
@@ -33,19 +38,19 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
     raise HTTPException(status_code=404, detail="Service not found.")
   
   appointment_professional = AppointmentProfessional(
-    id=str(professional["_id"]),
+    _id=ObjectId(professional["_id"]),
     first_name=professional["first_name"],
     last_name=professional["last_name"]
   )
 
   appointment_customer = AppointmentCustomer(
-    id=str(customer["_id"]),
+    _id=ObjectId(customer["_id"]),
     first_name=customer["first_name"],
     last_name=customer["last_name"]
   )
 
   appointment_service = AppointmentService(
-    id=str(service["_id"]),
+    _id=ObjectId(service["_id"]),
     title=service["title"],
     photo=service["photo"]
   )
