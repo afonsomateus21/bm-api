@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from routers.user.services import user_dependency
 from starlette import status
 from .validators import CreateOfferedServiceRequest, UpdateOfferedServiceRequest, FileUploadRequest
@@ -58,31 +58,7 @@ async def upload_photo(request: FileUploadRequest):
 
   except Exception as e:
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not upload the image.")
-
-@offered_services_router.get("/{id}", status_code=status.HTTP_200_OK)
-async def get_service(id: str, current_user: user_dependency):
-  if current_user is None:
-    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
   
-  service = offered_services_collection.find_one({ "_id": ObjectId(id) })
-
-  if service is None:
-    raise HTTPException(status_code=404, detail="Service not found.")
-  
-  service["_id"] = str(service["_id"])
-  service["professional_id"] = str(service["professional_id"])
-
-  return jsonable_encoder(service)
-
-@offered_services_router.get("/", status_code=status.HTTP_200_OK)
-async def list_services(current_user: user_dependency):
-  if current_user is None:
-    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
-  
-  services = list_serial(offered_services_collection.find())
-
-  return services
-
 @offered_services_router.put("/{id}", status_code=status.HTTP_200_OK)
 async def edit_service(id:str, update_service_request: UpdateOfferedServiceRequest, current_user: user_dependency):
   if str(current_user["type"]) != UserType.ADMIN:
@@ -112,6 +88,48 @@ async def edit_service(id:str, update_service_request: UpdateOfferedServiceReque
 
   return jsonable_encoder(updated_service)
 
+@offered_services_router.get("/", status_code=status.HTTP_200_OK)
+async def list_services(current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  services = list_serial(offered_services_collection.find())
+
+  return services
+
+@offered_services_router.get("/professional", status_code=status.HTTP_200_OK)
+async def list_services_by_professional(
+  current_user: user_dependency,
+  professional_id: str = Query(..., title="Professional ID", description="ID of the professional")
+):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  service = offered_services_collection.find_one({ "professional_id": ObjectId(professional_id) })
+
+  if service is None:
+    raise HTTPException(status_code=404, detail="There is no service for this professional.")
+  
+  service["_id"] = str(service["_id"])
+  service["professional_id"] = str(service["professional_id"])
+
+  return jsonable_encoder(service)
+
+@offered_services_router.get("/{id}", status_code=status.HTTP_200_OK)
+async def get_service(id: str, current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  service = offered_services_collection.find_one({ "_id": ObjectId(id) })
+
+  if service is None:
+    raise HTTPException(status_code=404, detail="Service not found.")
+  
+  service["_id"] = str(service["_id"])
+  service["professional_id"] = str(service["professional_id"])
+
+  return jsonable_encoder(service)
+  
 @offered_services_router.delete("/{id}", status_code=status.HTTP_200_OK)
 async def remove_service(id: str, current_user: user_dependency):
   if str(current_user["type"]) != UserType.ADMIN:
