@@ -21,6 +21,10 @@ class Appointment(BaseModel):
   professional: AppointmentProfessional
   service: AppointmentService
   customer: AppointmentCustomer
-  date: datetime.date
-  hour: datetime.time
+  date: str
+  hour: int
   is_notifiable: bool
+
+  def to_dict(self):
+    data = self.model_dump(by_alias=True)
+    return data
