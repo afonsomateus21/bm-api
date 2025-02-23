@@ -4,6 +4,7 @@ from typing import Optional
 
 class CreateAppointmentRequest(BaseModel):
   professional_id: str
+  customer_id: str
   service_id: str
   date: datetime.date
   hour: datetime.time
