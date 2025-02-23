@@ -31,6 +31,16 @@ def get_service_for_appointment(id: str):
 
   return service
 
+
+def serialize_appointment(appointment):
+  appointment["_id"] = str(appointment["_id"])
+  
+  appointment["professional"]["_id"] = str(appointment["professional"]["_id"])
+  appointment["customer"]["_id"] = str(appointment["customer"]["_id"])
+  appointment["service"]["_id"] = str(appointment["service"]["_id"])
+  
+  return appointment
+
 def individual_serial(appointment) -> dict:
   return {
     "id": str(appointment["_id"]),
