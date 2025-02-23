@@ -31,7 +31,8 @@ async def create_service(create_service_request: CreateOfferedServiceRequest, cu
     professional_id=create_service_request.professional_id,
     duration=create_service_request.duration,
     price=create_service_request.price,
-    photo=create_service_request.photo
+    photo=create_service_request.photo,
+    active=create_service_request.active
   )
 
   create_service_model.professional_id = ObjectId(create_service_model.professional_id)
