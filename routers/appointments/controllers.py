@@ -2,8 +2,10 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from starlette import status
 from .validators import CreateAppointmentRequest
 from routers.user.services import user_dependency
-from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment
+from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial
 from .models import Appointment, AppointmentProfessional, AppointmentCustomer, AppointmentService
+from config.database import appointments_collection
+from bson import ObjectId
 
 appointments_router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
@@ -31,19 +33,19 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
     raise HTTPException(status_code=404, detail="Service not found.")
   
   appointment_professional = AppointmentProfessional(
-    id=professional["_id"],
+    id=str(professional["_id"]),
     first_name=professional["first_name"],
     last_name=professional["last_name"]
   )
 
   appointment_customer = AppointmentCustomer(
-    id=customer["_id"],
+    id=str(customer["_id"]),
     first_name=customer["first_name"],
     last_name=customer["last_name"]
   )
 
   appointment_service = AppointmentService(
-    id=service["_id"],
+    id=str(service["_id"]),
     title=service["title"],
     photo=service["photo"]
   )
@@ -53,8 +55,12 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
     customer=appointment_customer,
     service=appointment_service,
     date=create_appointment_request.date,
-    hour=create_appointment_request.hour,
+    hour=create_appointment_request.hour,  
     is_notifiable=create_appointment_request.is_notifiable
   )
 
-  return create_appointment_model
+  result = appointments_collection.insert_one(create_appointment_model.to_dict())
+
+  appointment_created = appointments_collection.find_one({ "_id": result.inserted_id })
+
+  return individual_serial(appointment_created)
