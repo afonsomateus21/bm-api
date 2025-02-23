@@ -12,6 +12,7 @@ class CreateAppointmentRequest(BaseModel):
 
 class UpdateAppointmentRequest(BaseModel):
   id: Optional[str] = None
+  professional_id: Optional[str] = None
   service_id: Optional[str] = None
   date: Optional[str] = None 
   hour: Optional[int] = None
