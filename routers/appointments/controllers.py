@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, HTTPException, Depends
+from fastapi import APIRouter, Query, HTTPException
 from starlette import status
 from .validators import CreateAppointmentRequest, UpdateAppointmentRequest
 from routers.user.services import user_dependency
