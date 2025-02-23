@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Query, HTTPException, Depends
 from starlette import status
 from .validators import CreateAppointmentRequest, UpdateAppointmentRequest
 from routers.user.services import user_dependency
@@ -7,6 +7,7 @@ from .models import Appointment, AppointmentProfessional, AppointmentCustomer, A
 from config.database import appointments_collection
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
+from typing import Annotated
 
 appointments_router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
@@ -155,6 +156,28 @@ async def list_appointments(current_user: user_dependency):
     raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
   
   appointments = list_serial(appointments_collection.find())
+
+  return appointments
+
+@appointments_router.get("/customer", status_code=status.HTTP_200_OK)
+async def list_appointments_from_customer(
+  current_user: user_dependency,
+  customer_id: str = Query(..., title="Customer ID", description="ID of the customer")
+):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  try:
+    customer_object_id = ObjectId(customer_id)
+  except Exception:
+    raise HTTPException(status_code=400, detail="Invalid customer ID format.")
+  
+  appointments = list_serial(
+    appointments_collection.find({"customer._id": customer_object_id})
+  )
+
+  if not appointments:
+    raise HTTPException(status_code=404, detail="No appointments found for this customer.")
 
   return appointments
 
