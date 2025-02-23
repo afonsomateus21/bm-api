@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from starlette import status
 from .validators import CreateAppointmentRequest, UpdateAppointmentRequest
 from routers.user.services import user_dependency
-from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial, serialize_appointment
+from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial, serialize_appointment, list_serial
 from .models import Appointment, AppointmentProfessional, AppointmentCustomer, AppointmentService
 from config.database import appointments_collection
 from bson import ObjectId
@@ -148,6 +148,15 @@ async def get_appointment(appointment_id: str, current_user: user_dependency):
   serialized_appointment = serialize_appointment(appointment)
   
   return jsonable_encoder(serialized_appointment)
+
+@appointments_router.get("/", status_code=status.HTTP_200_OK)
+async def list_appointments(current_user: user_dependency):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  appointments = list_serial(appointments_collection.find())
+
+  return appointments
 
 @appointments_router.delete("/{appointment_id}", status_code=status.HTTP_200_OK)
 async def remove_appointment(appointment_id: str, current_user: user_dependency):
