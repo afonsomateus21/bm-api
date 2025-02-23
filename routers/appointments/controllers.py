@@ -172,7 +172,6 @@ async def list_appointments_from_professional(
   current_user: user_dependency,
   professional_id: str = Query(..., title="Professional ID", description="ID of the professional")
 ):
-  print(f"Received professional_id: {professional_id}")
   if str(current_user["type"]) != UserType.ADMIN:
     raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
   
@@ -183,6 +182,23 @@ async def list_appointments_from_professional(
   
   appointments = list_serial(
     appointments_collection.find({"professional._id": professional_object_id})
+  )
+
+  if not appointments:
+    raise HTTPException(status_code=404, detail="No appointments found for this professional.")
+
+  return appointments
+
+@appointments_router.get("/date", status_code=status.HTTP_200_OK)
+async def list_services_by_date(
+  current_user: user_dependency,
+  appointment_date: str = Query(..., title="Date", description="Date of a specific appointment")
+):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  appointments = list_serial(
+    appointments_collection.find({"date": appointment_date})
   )
 
   if not appointments:
