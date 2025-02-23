@@ -2,15 +2,20 @@ import datetime
 from config.database import appointments_collection, users_collection, offered_services_collection
 from bson import ObjectId
 
-def check_if_date_and_hour_are_available(date: datetime.date, hour: datetime.time, professional_id: str, customer_id: str):
-    appointment = appointments_collection.find_one({
-      "date": date,  
+def check_if_date_and_hour_are_available(date: str, hour:int, professional_id: str, customer_id: str):
+    professional_object_id = ObjectId(professional_id)
+    customer_object_id = ObjectId(customer_id)
+
+    existing_appointment = appointments_collection.find_one({
+      "date": date,
       "hour": hour,
-      "professional.id": ObjectId(professional_id),
-      "customer.id": ObjectId(customer_id)
+      "$or": [
+        {"professional._id": professional_object_id},
+        {"customer._id": customer_object_id}
+      ]
     })
 
-    return appointment is None
+    return existing_appointment is None
 
 def get_user_for_appointment(id: str):
   user = users_collection.find_one({
@@ -30,17 +35,17 @@ def individual_serial(appointment) -> dict:
   return {
     "id": str(appointment["_id"]),
     "professional": {
-      "id": str(appointment["professional"]["id"]),
+      "_id": str(appointment["professional"]["_id"]),
       "first_name": str(appointment["professional"]["first_name"]),
       "last_name": str(appointment["professional"]["last_name"])
     },
     "service": {
-      "id": str(appointment["service"]["id"]),
+      "_id": str(appointment["service"]["_id"]),
       "title": str(appointment["service"]["title"]),
       "photo": str(appointment["service"]["photo"]) if appointment["service"]["photo"] is not None else None
     },
     "customer": {
-      "id": str(appointment["customer"]["id"]),
+      "_id": str(appointment["customer"]["_id"]),
       "first_name": str(appointment["customer"]["first_name"]),
       "last_name": str(appointment["customer"]["last_name"])
     },
