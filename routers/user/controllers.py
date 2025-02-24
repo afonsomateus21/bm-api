@@ -145,6 +145,15 @@ async def list_admin(current_user: user_dependency):
   
   return users
 
+@auth_router.get("/user/customer", status_code=status.HTTP_200_OK)
+async def list_customers(current_user: user_dependency):
+  if current_user["type"] != "ADMIN":
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  users = list_serial(users_collection.find({ "type": UserType.CUSTOMER }))
+  
+  return users
+
 @auth_router.get("/user/me", status_code=status.HTTP_200_OK)
 async def read_me(current_user: user_dependency):
   print(current_user)
