@@ -105,15 +105,12 @@ async def list_services_by_professional(
   if current_user is None:
     raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
   
-  service = offered_services_collection.find_one({ "professional_id": ObjectId(professional_id) })
+  service = offered_services_collection.find({ "professional_id": ObjectId(professional_id) })
 
   if service is None:
     raise HTTPException(status_code=404, detail="There is no service for this professional.")
-  
-  service["_id"] = str(service["_id"])
-  service["professional_id"] = str(service["professional_id"])
 
-  return jsonable_encoder(service)
+  return list_serial(service)
 
 @offered_services_router.get("/{id}", status_code=status.HTTP_200_OK)
 async def get_service(id: str, current_user: user_dependency):
