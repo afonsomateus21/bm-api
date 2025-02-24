@@ -132,7 +132,7 @@ def individual_serial(user) -> dict:
     "photo": str(user["photo"]) if user["photo"] is not None else None,
     "category": str(user["category"]) if user.get("category") is not None else None,
     "google_sub": str(user["google_sub"]) if user["google_sub"] is not None else None,
-    "active": bool(user["active"])  if user["google_sub"] is not None else None,
+    "active": bool(user["active"])  if user["active"] is not None else None,
   }
 
 def list_serial(users) -> list:
