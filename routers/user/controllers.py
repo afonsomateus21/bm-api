@@ -108,7 +108,7 @@ async def create_admin(create_user_request: CreateUserRequest, current_user: use
     photo=create_user_request.photo,
     email=create_user_request.email,
     category=create_user_request.category,
-    active=True
+    active=create_user_request.active,
   )
 
   if (check_if_user_already_exits(create_user_model.email)):

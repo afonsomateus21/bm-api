@@ -5,7 +5,7 @@ from typing import Optional
 class CreateOfferedServiceRequest(BaseModel):
   title: str
   description: str
-  category: ServiceCategory
+  category: Optional[ServiceCategory] = None
   professional_id: str
   duration: int
   price: float

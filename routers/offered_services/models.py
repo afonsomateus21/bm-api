@@ -6,12 +6,13 @@ class ServiceCategory(str, Enum):
   FOOT_HAND = "FOOT_HAND"
   HAIR = "HAIR"
   NAILS = "NAILS"
-  LASHES: "LASHES"
+  LASHES = "LASHES"
+  EYEBROW = "EYEBROW"
 
 class OfferedService(BaseModel):
   title: str
   description: str
-  category: ServiceCategory
+  category: Optional[ServiceCategory] = None
   professional_id: str
   duration: int
   price: float
