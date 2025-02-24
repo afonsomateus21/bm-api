@@ -70,15 +70,16 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
 
   appointment_created = appointments_collection.find_one({ "_id": result.inserted_id })
 
-  notify_new_appointment(
-    to_email_customer=customer["email"],
-    to_name_customer=f"""{ customer["first_name"] } { customer["last_name"] }""",
-    to_email_professional=professional["email"],
-    to_name_professional=f"""{ professional["first_name"] } { professional["last_name"] }""",
-    service_name=service["title"],
-    date=appointment_created["date"],
-    hour=appointment_created["hour"]
-  )
+  if create_appointment_request.is_notifiable:
+    notify_new_appointment(
+      to_email_customer=customer["email"],
+      to_name_customer=f"""{ customer["first_name"] } { customer["last_name"] }""",
+      to_email_professional=professional["email"],
+      to_name_professional=f"""{ professional["first_name"] } { professional["last_name"] }""",
+      service_name=service["title"],
+      date=appointment_created["date"],
+      hour=appointment_created["hour"]
+    )
 
   return individual_serial(appointment_created)
 
