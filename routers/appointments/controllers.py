@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, HTTPException
 from starlette import status
 from .validators import CreateAppointmentRequest, UpdateAppointmentRequest
 from routers.user.services import user_dependency
-from .services import check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial, serialize_appointment, list_serial
+from .services import notify_new_appointment, check_if_date_and_hour_are_available, get_user_for_appointment, get_service_for_appointment, individual_serial, serialize_appointment, list_serial
 from .models import Appointment, AppointmentProfessional, AppointmentCustomer, AppointmentService
 from config.database import appointments_collection
 from bson import ObjectId
@@ -69,6 +69,16 @@ async def create_appointment(create_appointment_request: CreateAppointmentReques
   result = appointments_collection.insert_one(create_appointment_model.to_dict())
 
   appointment_created = appointments_collection.find_one({ "_id": result.inserted_id })
+
+  notify_new_appointment(
+    to_email_customer=customer["email"],
+    to_name_customer=f"""{ customer["first_name"] } { customer["last_name"] }""",
+    to_email_professional=professional["email"],
+    to_name_professional=f"""{ professional["first_name"] } { professional["last_name"] }""",
+    service_name=service["title"],
+    date=appointment_created["date"],
+    hour=appointment_created["hour"]
+  )
 
   return individual_serial(appointment_created)
 
