@@ -167,37 +167,53 @@ async def upload_photo(request: FileUploadRequest):
 
 @auth_router.put("/user/{id}", status_code=status.HTTP_200_OK)
 async def edit_user(id: str, update_user_request: UpdateUserRequest, current_user: user_dependency):
-  if (str(current_user["type"]) != "ADMIN") and (str(current_user["_id"]) != str(id)):
-    raise HTTPException(status_code=403, detail="You are not authorized to update this user.")
+    if (str(current_user["type"]) != "ADMIN") and (str(current_user["_id"]) != str(id)):
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorized to update this user."
+        )
 
-  update_data = update_user_request.model_dump(exclude_unset=True)
-  result = users_collection.update_one(
-    {"_id": ObjectId(current_user["_id"])}, 
-    {"$set": dict(update_data)}
-  )
+    user_id_to_update = ObjectId(id) if str(current_user["type"]) == "ADMIN" else ObjectId(current_user["_id"])
+    update_data = update_user_request.model_dump(exclude_unset=True)
 
-  if result.modified_count == 0:
-    raise HTTPException(status_code=400, detail="No changes were made to the user.")
-  
-  updated_user = users_collection.find_one({"_id": ObjectId(current_user["_id"])})
+    result = users_collection.update_one(
+        {"_id": user_id_to_update},
+        {"$set": update_data}
+    )
 
-  updated_user["_id"] = str(updated_user["_id"])
-  if "password" in updated_user:
-    del updated_user["password"]
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="No changes were made to the user."
+        )
 
-  return jsonable_encoder(updated_user)
+    updated_user = users_collection.find_one({"_id": user_id_to_update})
+
+    updated_user["_id"] = str(updated_user["_id"])
+    if "password" in updated_user:
+        del updated_user["password"]
+
+    return jsonable_encoder(updated_user)
 
 @auth_router.delete("/user/{id}", status_code=status.HTTP_200_OK)
 async def remove_user(id: str, current_user: user_dependency):
-  if (str(current_user["type"]) != "ADMIN") and (str(current_user["_id"]) != str(id)):
-    raise HTTPException(status_code=403, detail="You are not authorized to remove this user.")
-  
-  result = users_collection.delete_one({ "_id": ObjectId(current_user["_id"]) })
+    if (str(current_user["type"]) != "ADMIN") and (str(current_user["_id"]) != str(id)):
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorized to remove this user."
+        )
 
-  if result.deleted_count == 0:
-    raise HTTPException(status_code=404, detail="User not found.")
-  
-  return { "success": True, "message": "User successfully removed." }
+    user_id_to_delete = ObjectId(id) if str(current_user["type"]) == "ADMIN" else ObjectId(current_user["_id"])
+
+    result = users_collection.delete_one({"_id": user_id_to_delete})
+
+    if result.deleted_count == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found."
+        )
+
+    return {"success": True, "message": "User successfully removed."}
 
 @auth_router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
 async def login_for_access_token(request: LoginRequest):

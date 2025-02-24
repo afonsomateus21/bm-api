@@ -33,7 +33,7 @@ class UpdateOfferedServiceRequest(BaseModel):
   duration: Optional[int] = None
   price: Optional[float] = None
   photo: Optional[str] = None
-  active: bool
+  active: bool = None
 
   @field_validator("duration")
   def validate_duration(cls, value):
