@@ -25,7 +25,7 @@ class User(BaseModel):
   google_sub: Optional[str] = None
   photo: Optional[str] = None
   category: Optional[CategoryType] = None
-  active: bool = None
+  active: Optional[bool] = None
 
   class Config:
     populate_by_name = True

@@ -3,9 +3,10 @@ from enum import Enum
 from typing import Optional
 
 class ServiceCategory(str, Enum):  
-  FOOT_AND_HAND = "FOOT_HAND"
+  FOOT_HAND = "FOOT_HAND"
   HAIR = "HAIR"
-  EXTENSION = "EXTENSION"
+  NAILS = "NAILS"
+  LASHES: "LASHES"
 
 class OfferedService(BaseModel):
   title: str
@@ -15,4 +16,4 @@ class OfferedService(BaseModel):
   duration: int
   price: float
   photo: Optional[str] = None
-  active: bool
+  active: Optional[bool]

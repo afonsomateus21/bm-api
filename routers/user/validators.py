@@ -22,7 +22,7 @@ class CreateUserRequest(BaseModel):
   photo: Optional[str] = None
   type: UserType = UserType.CUSTOMER
   category: Optional[CategoryType] = None
-  active: bool
+  active: Optional[bool] = None
 
 class UpdateUserRequest(BaseModel):
   id: Optional[str] = None
@@ -34,7 +34,7 @@ class UpdateUserRequest(BaseModel):
   photo: Optional[str] = None
   type: Optional[UserType] = None
   category: Optional[CategoryType] = None
-  active: bool = None
+  active: Optional[bool] = None
 
 class Token(BaseModel):
   access_token: str
