@@ -52,37 +52,37 @@ Atualmente, **41,67%** dos requisitos foram implementados.
       <td>RF05</td>
       <td>Realizar agendamento</td>
       <td>Permitir que usuários CLIENTE realizem o agendamento de serviços, especificando data e horário.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
     <tr>
       <td>RF06</td>
       <td>Cancelar agendamento</td>
       <td>Permitir que usuários ADMIN e CLIENTE cancelem agendamentos de serviços existentes.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
     <tr>
       <td>RF07</td>
       <td>Notificar agendamento</td>
       <td>Notificar usuários ADMIN e CLIENTE sobre novos agendamentos realizados no sistema.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
     <tr>
       <td>RF08</td>
       <td>Notificar cancelamento</td>
       <td>Notificar usuários ADMIN e CLIENTE sobre cancelamentos de agendamentos no sistema.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
     <tr>
       <td>RF09</td>
       <td>Reservar horários</td>
       <td>Permitir que usuários ADMIN reservem horários específicos para CLIENTES VIP.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
     <tr>
       <td>RF10</td>
       <td>Cancelar horários</td>
       <td>Permitir que usuários ADMIN cancelem reservas de horários para CLIENTES VIP.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
     <tr>
       <td>RF11</td>
@@ -94,7 +94,7 @@ Atualmente, **41,67%** dos requisitos foram implementados.
       <td>RF12</td>
       <td>Realizar logout</td>
       <td>Permitir que usuários (ADMIN ou CLIENTE) façam logout do sistema, encerrando a sessão ativa.</td>
-      <td>Pendente</td>
+      <td>Implementado</td>
     </tr>
   </tbody>
 </table>
