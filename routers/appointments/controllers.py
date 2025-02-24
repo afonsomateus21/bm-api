@@ -240,6 +240,32 @@ async def list_services_by_date(
 
   return { "hours": hours }
 
+@appointments_router.get("/date-customer", status_code=status.HTTP_200_OK)
+async def list_appointments_by_customer_and_date(
+  current_user: user_dependency,
+  customer_id: str = Query(..., title="Customer ID", description="ID of the customer"),
+  appointment_date: str = Query(..., title="Date", description="Date of a specific appointment")
+):
+  if current_user is None:
+    raise HTTPException(status_code=403, detail="You are not authorized to make this action.")
+  
+  try:
+    customer_object_id = ObjectId(customer_id)
+  except Exception:
+    raise HTTPException(status_code=400, detail="Invalid customer ID format.")
+  
+  appointments = list_serial(
+    appointments_collection.find({
+      "date": appointment_date,
+      "customer._id": customer_object_id
+    })
+  )
+
+  if not appointments:
+    raise HTTPException(status_code=404, detail="No appointments found for this customer on this date.")
+
+  return appointments
+
 @appointments_router.get("/{appointment_id}", status_code=status.HTTP_200_OK)
 async def get_appointment(appointment_id: str, current_user: user_dependency):
   if current_user is None:
