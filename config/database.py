@@ -15,4 +15,3 @@ db = client.bm_db
 users_collection = db["users"]
 offered_services_collection = db["offeredServices"]
 appointments_collection = db["appointments"]
-reservations = db["reservations"]
